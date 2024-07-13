@@ -9,7 +9,7 @@ import (
 
 type Storage struct {
 	m     sync.Mutex
-	Tasks map[string]Task //storing as map like in DB
+	Tasks map[string]Task 
 	Users map[string]User
 }
 
@@ -21,7 +21,7 @@ func NewStorage() *Storage {
 }
 
 func (s *Storage) GetTasks() []Task {
-	tasks := make([]Task, 0, len(s.Tasks)) //turning map into slice to return an array. why can't we also return a map?
+	tasks := make([]Task, 0, len(s.Tasks))
 
 	for _, task := range s.Tasks {
 		tasks = append(tasks, task)
