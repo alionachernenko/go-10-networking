@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"sync"
+
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type Storage struct {
