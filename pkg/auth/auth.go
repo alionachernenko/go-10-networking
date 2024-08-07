@@ -1,14 +1,15 @@
-package main
+package auth
 
 import (
 	"net/http"
+	"tasks/internal/storage"
 )
 
 type Auth struct {
-	Storage *Storage
+	Storage *storage.Storage
 }
 
-func (auth *Auth) checkAuth(next http.HandlerFunc) http.HandlerFunc {
+func (auth *Auth) CheckAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
 

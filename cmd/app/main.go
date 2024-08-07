@@ -4,40 +4,44 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"tasks/internal/entities"
+	"tasks/internal/storage"
+	"tasks/pkg/auth"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	storage := NewStorage()
+	storage := storage.NewStorage()
 
 	tasks := TasksResource{
 		Storage: storage,
 	}
 
-	auth := Auth{
+	auth := auth.Auth{
 		Storage: storage,
 	}
 
 	users := UsersResource{
 		Storage: storage,
 	}
+	
 	mux.HandleFunc("POST /users", users.CreateUser)
-	mux.HandleFunc("GET /tasks", auth.checkAuth(tasks.GetTasks))
-	mux.HandleFunc("POST /tasks", auth.checkAuth(tasks.CreateTask))
-	mux.HandleFunc("PUT /tasks/{id}", auth.checkAuth(tasks.UpdateTask))
-	mux.HandleFunc("DELETE /tasks/{id}", auth.checkAuth(tasks.DeleteTask))
+	mux.HandleFunc("GET /tasks", auth.CheckAuth(tasks.GetTasks))
+	mux.HandleFunc("POST /tasks", auth.CheckAuth(tasks.CreateTask))
+	mux.HandleFunc("PUT /tasks/{id}", auth.CheckAuth(tasks.UpdateTask))
+	mux.HandleFunc("DELETE /tasks/{id}", auth.CheckAuth(tasks.DeleteTask))
 
 	http.ListenAndServe(":8080", mux)
 }
 
 type TasksResource struct {
-	Storage *Storage
+	Storage *storage.Storage
 }
 
 func (tr *TasksResource) GetTasks(w http.ResponseWriter, r *http.Request) {
 	tasks := tr.Storage.GetTasks()
-	res := map[string][]Task{"tasks": tasks}
+	res := map[string][]entities.Task{"tasks": tasks}
 
 	err := json.NewEncoder(w).Encode(res)
 
@@ -50,7 +54,7 @@ func (tr *TasksResource) GetTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (tr *TasksResource) CreateTask(w http.ResponseWriter, r *http.Request) {
-	var reqBody Task
+	var reqBody entities.Task
 
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
@@ -72,7 +76,7 @@ func (tr *TasksResource) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 func (tr *TasksResource) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	var reqBody Task
+	var reqBody entities.Task
 
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 
@@ -88,8 +92,6 @@ func (tr *TasksResource) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-
 }
 
 func (tr *TasksResource) DeleteTask(w http.ResponseWriter, r *http.Request) {
@@ -104,11 +106,11 @@ func (tr *TasksResource) DeleteTask(w http.ResponseWriter, r *http.Request) {
 }
 
 type UsersResource struct {
-	Storage *Storage
+	Storage *storage.Storage
 }
 
 func (ur *UsersResource) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user User
+	var user entities.User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 

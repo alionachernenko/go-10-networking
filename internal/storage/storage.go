@@ -1,27 +1,28 @@
-package main
+package storage
 
 import (
 	"fmt"
 	"sync"
+	"tasks/internal/entities"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type Storage struct {
 	m     sync.Mutex
-	Tasks map[string]Task 
-	Users map[string]User
+	Tasks map[string]entities.Task 
+	Users map[string]entities.User
 }
 
 func NewStorage() *Storage {
 	return &Storage{
-		Tasks: make(map[string]Task),
-		Users: make(map[string]User),
+		Tasks: make(map[string]entities.Task),
+		Users: make(map[string]entities.User),
 	}
 }
 
-func (s *Storage) GetTasks() []Task {
-	tasks := make([]Task, 0, len(s.Tasks))
+func (s *Storage) GetTasks() []entities.Task {
+	tasks := make([]entities.Task, 0, len(s.Tasks))
 
 	for _, task := range s.Tasks {
 		tasks = append(tasks, task)
@@ -30,7 +31,7 @@ func (s *Storage) GetTasks() []Task {
 	return tasks
 }
 
-func (s *Storage) CreateTask(task Task) (string, bool) {
+func (s *Storage) CreateTask(task entities.Task) (string, bool) {
 	s.m.Lock()
 
 	defer s.m.Unlock()
@@ -48,7 +49,7 @@ func (s *Storage) CreateTask(task Task) (string, bool) {
 	return id, true
 }
 
-func (s *Storage) UpdadeTask(id string, task Task) bool {
+func (s *Storage) UpdadeTask(id string, task entities.Task) bool {
 	s.m.Lock()
 
 	defer s.m.Unlock()
@@ -80,7 +81,7 @@ func (s *Storage) DeleteTask(id string) bool {
 	return true
 }
 
-func (s *Storage) GetUser(username string) (User, bool) {
+func (s *Storage) GetUser(username string) (entities.User, bool) {
 	fmt.Print(username)
 	s.m.Lock()
 
@@ -92,7 +93,7 @@ func (s *Storage) GetUser(username string) (User, bool) {
 	return user, ok
 }
 
-func (s *Storage) CreateUser(u User) bool {
+func (s *Storage) CreateUser(u entities.User) bool {
 	s.m.Lock()
 
 	defer s.m.Unlock()
